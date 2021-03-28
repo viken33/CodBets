@@ -31,8 +31,9 @@ contract CodBets is Ownable, ChainlinkClient {
     uint256 private fee;
     uint256 challengeCount;    // genero los challengeIds en base al conteo
     mapping(uint256 => Challenge) public challenges;       // challengeId => Challenge Struct
-    mapping(address => uint256[]) public userChallenges;   // mapea jugador => sus challengeIds 
+    mapping(address => uint256[]) public userChallenges;   // maps player => placed challengeIds 
     mapping(bytes32 => uint256) public matches; // requests => challengeIds
+    mapping(address => uint256[]) public receivedChallenges; // maps player => received challengeIds
     
     // definir eventos
     event NewChallenge(
@@ -75,6 +76,7 @@ contract CodBets is Ownable, ChainlinkClient {
             challengeCount = challengeCount.add(1); // chalengeId based on count
             challenges[challengeCount] = chall;
             userChallenges[msg.sender].push(challengeCount);
+            receivedChallenges[_player2].push(challengeCount);
             emit NewChallenge(msg.sender, challengeCount, _gamertag1, _gamertag2, _amount);
             return challengeCount;
     }
@@ -106,6 +108,10 @@ contract CodBets is Ownable, ChainlinkClient {
     
     function viewChallenges(address _addr) public view returns(uint256[] memory _userChallenges) {
         return userChallenges[_addr];
+    }
+
+    function viewReceivedChallenges(address _addr) public view returns(uint256[] memory _receivedChallenges) {
+        return receivedChallenges[_addr];
     }
     
     function fetchWinner(string memory _matchid, string memory _gamertag1, string memory _gamertag2, 

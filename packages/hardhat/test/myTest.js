@@ -100,8 +100,12 @@ describe('Cod Bets', function () {
     it('Shows challenge Ids for given address', async function () {
       const [owner, addr1, addr2] = await ethers.getSigners();
       const challengesOfOwner = await codbets.viewChallenges(owner.address);
+      const challengesPlayer2 = await codbets.viewReceivedChallenges(
+        addr2.address
+      );
       expect(challengesOfOwner[0].toNumber()).to.equal(1);
       expect(challengesOfOwner[1].toNumber()).to.equal(0);
+      expect(challengesPlayer2[0].toNumber()).to.equal(1);
     });
   });
 
