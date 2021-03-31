@@ -74,14 +74,7 @@ required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://clas
 
 # 📟 Infrastructure
 
----
 
-## 🛰 Using The Graph
-
-[![thegraphplayvideo](https://user-images.githubusercontent.com/2653167/101052782-4664ee00-3544-11eb-8805-887ad4d1406e.png)
-](https://youtu.be/T5ylzOTkn-Q)
-
-[ 🎥 here is another Graph speed run tutorial video ](https://youtu.be/T5ylzOTkn-Q)
 
 
 
