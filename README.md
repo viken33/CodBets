@@ -12,7 +12,7 @@
 ---
 
 
-#### Demo
+### Demo
 required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 
 
@@ -57,22 +57,7 @@ yarn deploy
 
 #### Incoming Features
 
-#### 
-
-|-   <B> [ 📠 Legacy Content ](https://github.com/austintgriffith/scaffold-eth#-legacy-content) </B> - | - <B> [ 💬 Support Chat ](https://github.com/austintgriffith/scaffold-eth#-support-chat) </B> -|
-
-
-
-
-# 🏃‍♀️ Quick Start
-
-required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
-
-
-
-
-
-# 📟 Infrastructure
+#### 📟 Infrastructure
 
 
 
