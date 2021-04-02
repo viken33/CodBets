@@ -10,8 +10,8 @@ describe('Cod Bets', function () {
   describe('Challenge functionality & Event triggering', function () {
     it('Should deploy CodBets', async function () {
       const [owner, addr1, addr2] = await ethers.getSigners();
-      const YourContract = await ethers.getContractFactory('CodBets', owner);
-      codbets = await YourContract.deploy();
+      const CodBets = await ethers.getContractFactory('CodBets', owner);
+      codbets = await CodBets.deploy();
       await codbets.deployed();
     });
 

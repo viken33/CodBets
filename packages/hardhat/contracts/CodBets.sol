@@ -1,12 +1,21 @@
 pragma solidity >=0.6.0 <0.9.0;
 //SPDX-License-Identifier: MIT
 
-// import "../node_modules/hardhat/console.sol";
-// import "../node_modules/@openzeppelin/contracts/access/Ownable.sol"; 
-// import "../node_modules/@openzeppelin/contracts//math/SafeMath.sol";
-// import "../node_modules/@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
-
-//import "@hardhat/console.sol";
+/**
+ * 
+ * @author @viken33 and @famole
+ * @description This contract is used to place and handle Bets for the CodBets Dapp
+ * It allows players to place bets against each other which are settled in a trustless fashion
+ * A player can place a bet sending value to the contract, including his Call of Duty gamertag,
+ * his opponent gamertag and address.
+ * CodBets searches for the next match they play together, and settles the bet automatically
+ * based on a Chainlink Oracle API Request.
+ 
+ * @requires
+ * We use Open Zeppelin SafeMath and Ownable
+ * and Chainlink Client
+ */
+ 
 import "@openzeppelin/contracts/access/Ownable.sol"; 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
@@ -29,13 +38,15 @@ contract CodBets is Ownable, ChainlinkClient {
     address private oracle;
     bytes32 private jobId;
     uint256 private fee;
-    uint256 challengeCount;    // genero los challengeIds en base al conteo
-    mapping(uint256 => Challenge) public challenges;       // challengeId => Challenge Struct
-    mapping(address => uint256[]) public userChallenges;   // maps player => placed challengeIds 
-    mapping(bytes32 => uint256) public matches; // requests => challengeIds
+    uint256 challengeCount;                                  // generate challengeIds by counting
+    mapping(uint256 => Challenge) public challenges;         // challengeId => Challenge Struct
+    mapping(address => uint256[]) public userChallenges;     // maps player => placed challengeIds 
+    mapping(bytes32 => uint256) public matches;              // requests => challengeIds
     mapping(address => uint256[]) public receivedChallenges; // maps player => received challengeIds
     
-    // definir eventos
+    /** 
+    * @description challenge related Events
+    */
     event NewChallenge(
         address indexed _player1,
         uint256 indexed _challengeId,
@@ -45,11 +56,12 @@ contract CodBets is Ownable, ChainlinkClient {
         );
         
     event RemoveChallenge(uint256 indexed _challengeId);
-    
     event ChallengeAccepted(uint256 indexed _challengeId);
-    // defnir ChallengeSettled
     event ChallengeSettled(uint256 indexed _challengeId, string _winner);
     
+    /** 
+    * @constructor defines Chainlink params
+    */
     constructor() public {
         setPublicChainlinkToken();
         oracle = 0xdB524c2D3c2b3e75150eab9aCCDb1D25fEB51151;
@@ -57,10 +69,18 @@ contract CodBets is Ownable, ChainlinkClient {
         fee = 0.1 * 10 ** 18; // 0.1 LINK
         challengeCount = 0;
     }
-    
+
+    /** 
+    * @description Sets the challenge Struct linking addresses to gamertags and bet amount with msg.value
+    * Returns a challengeId and maps it to player address
+    * @param _gamertag1 refers to players in-game id
+    * @param _gamertag2 refers to opponent in-game id
+    * @param _player2 refers to opponent address
+    * @param _amount bet/challenge amount
+    * @return challengeid
+    */
     function placeChallenge(string memory _gamertag1, string memory _gamertag2, address payable _player2, uint256 _amount) public payable returns(uint256) {
-        // Sets the challenge Struct linking addresses to gamertags and bet amount with msg.value
-        // Returns a challengeId and maps it to player address
+       
         require(_amount == msg.value, "amount != msg.value");
         require(_amount > 0, "amount invalid");
         
@@ -81,6 +101,11 @@ contract CodBets is Ownable, ChainlinkClient {
             return challengeCount;
     }
     
+    /** 
+    * @description Removes a challenge, its must be created by the player
+    * @param _challengeid
+    */
+
     function removeChallenge(uint256 _challengeId) public {
         require(challenges[_challengeId].player1 == msg.sender, "challenge doesn't belong to player");
         require(challenges[_challengeId].accepted == false, "challenge already accepted");
@@ -96,8 +121,13 @@ contract CodBets is Ownable, ChainlinkClient {
         
     }
     
+    /** 
+    * @description Accepts a challenge, only the challenged player can accept it
+    * it must pay the bet amount along in tx value
+    * @param _challengeid
+    */
+
     function acceptChallenge(uint256 _challengeId) public payable {
-        // updates Challenge and accepts bet amount
         require(challenges[_challengeId].player2 == msg.sender, "wrong player2");
         require(challenges[_challengeId].amount == msg.value, "wrong amount");
         challenges[_challengeId].amount = challenges[_challengeId].amount.add(msg.value);
@@ -105,17 +135,39 @@ contract CodBets is Ownable, ChainlinkClient {
         emit ChallengeAccepted(_challengeId);
         
     }
-    
+
+    /** 
+    * @description view function to retrieve placed challenges of player
+    * @param _addr address of player
+    */
+
     function viewChallenges(address _addr) public view returns(uint256[] memory _userChallenges) {
         return userChallenges[_addr];
     }
 
+    /** 
+    * @description view function to retrieve incoming challenges of player
+    * @param _addr address of player
+    */
+
     function viewReceivedChallenges(address _addr) public view returns(uint256[] memory _receivedChallenges) {
         return receivedChallenges[_addr];
     }
+
+    /** 
+    * @description Once a match between players of a bet takes place, CodBets calls this function
+    * to fetch the winner based on a matchid. A helper function _fetchWinner gets called which
+    * triggers a Chainlink Request to a node with an external adapter, that fullfils the request
+    * with the gamertag of the match winner, and pays the bet.
+    * @param _matchid match id, internal id on Call of Duty API
+    * @param _gamertag1 refers to players in-game id
+    * @param _gamertag2 refers to opponent in-game id
+    * @param _challengeId
+    * @param requestId is used to track request fullfilment and mapping with matchId
+    */
     
     function fetchWinner(string memory _matchid, string memory _gamertag1, string memory _gamertag2, 
-    uint256 _challengeId) public {
+    uint256 _challengeId) public onlyOwner {
         bytes32 _requestId = _fetchWinner(_matchid, _gamertag1, _gamertag2);
         matches[_requestId] = _challengeId;
     }
@@ -131,12 +183,13 @@ contract CodBets is Ownable, ChainlinkClient {
         return sendChainlinkRequestTo(oracle, request, fee);
     }
     
-    // fulfills Chainlink Request and settles bet/challenge
+    /** 
+    * @description fulfills Chainlink Request and settles bet/challenge
+    */
      
     function fulfill(bytes32 _requestId, bytes32 _winner) public recordChainlinkFulfillment(_requestId)
     {
-        // parses _result which is in the format {winner,matchId}
-        
+             
         string memory winner = string(abi.encodePacked(_winner));
         
         
@@ -160,6 +213,11 @@ contract CodBets is Ownable, ChainlinkClient {
         
     }
     
+    /** 
+    * @description helper function to change oracle and jobId
+    * @param _oracle Oracle Address
+    * @param _jobId JobId on oracle
+    */
     
     function changeOracle(address _oracle, bytes32 _jobId) public onlyOwner {
         oracle = _oracle;
