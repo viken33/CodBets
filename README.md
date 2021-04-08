@@ -22,7 +22,7 @@ required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://clas
 For a local demo, please clone the demo brach of this repo
 
 ```bash
-git clone https://github.com/viken33/CodBets/.git
+git clone -b demo https://github.com/viken33/CodBets/.git
 
 cd CodBets
 ```
@@ -52,8 +52,15 @@ yarn chain
 yarn deploy
 
 ```
-This will deploy the contract locally (please verify hardhat config file).
-For the backend service you can use a script called codservice.js
+This will deploy the contract locally.
+For the backend service you can use a script called codservice.js.
+First we need to generate a mnemonic to use as deployer
+
+```bash
+yarn generate
+
+```
+then we ran the service:
 
 ```bash
 yarn cod
