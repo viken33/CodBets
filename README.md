@@ -54,7 +54,8 @@ yarn deploy
 ```
 This will deploy the contract locally.
 For the backend service you can use a script called codservice.js.
-First we need to generate a mnemonic to use as deployer:
+
+First we need to generate a mnemonic, the codservice uses a wallet:
 
 ```bash
 yarn generate
@@ -66,6 +67,9 @@ then we run the backend service:
 yarn cod
 
 ```
+When the app loads, set your Metamask to localhost and you are good to go!
+
+In order to try the whole demo you need to play a match on Call of Duty MW, so... have fun !
 
 #### Implementation 
 
