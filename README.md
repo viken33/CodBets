@@ -54,13 +54,13 @@ yarn deploy
 ```
 This will deploy the contract locally.
 For the backend service you can use a script called codservice.js.
-First we need to generate a mnemonic to use as deployer
+First we need to generate a mnemonic to use as deployer:
 
 ```bash
 yarn generate
 
 ```
-then we ran the service:
+then we run the backend service:
 
 ```bash
 yarn cod
