@@ -19,6 +19,7 @@ We have a [Live Demo on Kovan Testnet](https://ipfs.io/ipfs/QmSNDUpJauzSb9VGs2d2
 ### Local Demo
 required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 
+For a local demo, please clone the demo brach of this repo
 
 ```bash
 git clone https://github.com/viken33/CodBets/.git
