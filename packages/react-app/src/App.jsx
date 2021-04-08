@@ -71,8 +71,8 @@ const localProviderUrl = targetNetwork.rpcUrl;
 // as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
 const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
 if (DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
-// const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
-const localProvider = new InfuraProvider("kovan", "5b55e30382a746259ae44bb1f0eded23");
+const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
+// const localProvider = new InfuraProvider("kovan", "5b55e30382a746259ae44bb1f0eded23");
 
 // 🔭 block explorer URL
 const blockExplorer = targetNetwork.blockExplorer;

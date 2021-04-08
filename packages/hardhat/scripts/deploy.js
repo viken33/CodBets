@@ -43,7 +43,7 @@ const main = async () => {
   */
 
   //If you want to verify your contract on tenderly.co (see setup details in the scaffold-eth README!)
-
+  /*
   await tenderlyVerify({
     contractName: 'CodBets',
     contractAddress: CodBets.address,
@@ -56,7 +56,7 @@ const main = async () => {
     address: CodBets.address,
     // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
   });
-
+*/
   console.log(
     ' 💾  Artifacts (address, abi, and args) saved to: ',
     chalk.blue('packages/hardhat/artifacts/'),

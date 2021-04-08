@@ -1,93 +1,83 @@
 const API = require('@callofduty/api');
 const Firestore = require('@google-cloud/firestore');
-const { ethers } = require('hardhat');
-const bre = require('hardhat');
+const { ethers } = require('ethers');
 const fs = require('fs');
 
-const provider = ethers.getDefaultProvider('http://localhost:8545');
-// ver como sacar el signer que deploya el contrato
-//   const owner = await provider.getSigner();
-
-const contractName = 'CodBets';
+const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 let contract = fs
-  .readFileSync(
-    `${bre.config.paths.artifacts}/contracts/${contractName}.sol/${contractName}.json`
-  )
-  .toString();
-const address = fs
-  .readFileSync(`${bre.config.paths.artifacts}/${contractName}.address`)
+  .readFileSync('../hardhat/artifacts/contracts/CodBets.sol/CodBets.json')
   .toString();
 contract = JSON.parse(contract);
-bre.config.paths.root;
-let localDeployerMnemonic;
-localDeployerMnemonic = fs.readFileSync(
-  `${bre.config.paths.root}/mnemonic.txt`
-);
-localDeployerMnemonic = localDeployerMnemonic.toString().trim();
-let owner = new ethers.Wallet.fromMnemonic(localDeployerMnemonic);
 
-const getOwner = async () => {
-  try {
-    [owner] = await ethers.getSigners();
-  } catch (e) {
-    console.log(e);
-  }
-};
-getOwner();
+const address = fs
+  .readFileSync('../hardhat/artifacts/CodBets.address')
+  .toString();
+let nemo;
+nemo = fs.readFileSync(`mnemonic.txt`);
+nemo = nemo.toString().trim();
+let wallet = new ethers.Wallet.fromMnemonic(nemo);
+const owner = wallet.connect(provider);
 
 let codbets = new ethers.Contract(address, contract.abi, owner);
 codbets_reader = codbets.connect(provider);
 codbets_writer = codbets.connect(owner);
 
-const CallOfDutyAPI = new API.default();
+let CallOfDutyAPI = new API.default();
 
 async function matchFinder(gamertag1, gamertag2) {
   // fetch gamers tokens from dB
   const db = new Firestore({
     projectId: 'active-venture-300323',
-    keyFilename: '../active-venture-300323-30065e4d2546.json',
+    keyFilename: './active-venture-300323-30065e4d2546.json',
   });
+
   try {
-    const user1 = await db.collection('users').doc(`${gamertag1}`).get();
-    const user2 = await db.collection('users').doc(`${gamertag2}`).get();
-    const snapshot = await db.collection('users').get();
-    const { xsrf: xsrf1, sso: sso1, atkn: atkn1 } = user1.data();
-    const { xsrf: xsrf2, sso: sso2, atkn: atkn2 } = user2.data();
+    console.log(gamertag1, gamertag2);
+    const user1 = await db.collection('prueba').doc(`${gamertag1}`).get();
+    const user2 = await db.collection('prueba').doc(`${gamertag2}`).get();
+    const snapshot = await db.collection('prueba').get();
 
-    //Set tokens to requests
-    CallOfDutyAPI.UseTokens({ xsrf1, sso1, atkn1 });
-    // get platform and platform-based Identity
-    const { titleIdentities1 } = await CallOfDutyAPI.Identity();
-    const { username1, platform1 } = titleIdentities1.find(
-      (identity) => identity.title === 'mw'
-    );
-    // fetch last matches 20 matches timestamp now
-    const millisecondTimestamp = new Date().getUTCMilliseconds();
-    const lastTwentyMatches1 = await CallOfDutyAPI.MatchHistory(
-      { username: username1, platform: platform1 },
-      'mp',
-      'mw',
-      millisecondTimestamp
-    );
-    // loop through matches and save matchIds
-    const matchIDs1 = lastTwentyMatches1.matches.map((e) => e.matchID);
+    if (!(user1.data() && user2.data())) return;
 
-    //Set tokens to requests
-    CallOfDutyAPI.UseTokens({ xsrf2, sso2, atkn2 });
-    // get platform and platform-based Identity
-    const { titleIdentities2 } = await CallOfDutyAPI.Identity();
-    const { username2, platform2 } = titleIdentities2.find(
-      (identity) => identity.title === 'mw'
-    );
-    // fetch last match just to log gamertag
-    const lastTwentyMatches2 = await CallOfDutyAPI.MatchHistory(
-      { username: username2, platform: platform2 },
-      'mp',
-      'mw',
-      millisecondTimestamp
-    );
-    // loop through matches and save matchIds
-    const matchIDs2 = lastTwentyMatches2.matches.map((e) => e.matchID);
+    const { email: email1, password: password1 } = user1.data();
+    const { email: email2, password: password2 } = user2.data();
+
+    async function getMatches(email, password) {
+      let { xsrf, sso, atkn } = await CallOfDutyAPI.Authorize(email, password);
+
+      //Set tokens to requests
+      CallOfDutyAPI.UseTokens({ xsrf, sso, atkn });
+
+      // get platform and platform-based Identity
+      let { titleIdentities } = await CallOfDutyAPI.Identity();
+
+      const { username, platform } = titleIdentities.find(
+        (identity) => identity.title === 'mw'
+      );
+
+      // fetch last matches 20 matches timestamp now
+      const millisecondTimestamp = new Date().getUTCMilliseconds();
+      const lastTwentyMatches = await CallOfDutyAPI.MatchHistory(
+        { username: username, platform: platform },
+        'mp',
+        'mw'
+        // millisecondTimestamp
+      );
+
+      // loop through matches and save matchIds
+      if (lastTwentyMatches.matches) {
+        const matchIDs = lastTwentyMatches.matches.map((e) => e.matchID);
+        console.log(matchIDs);
+        return matchIDs;
+      } else {
+        return [];
+      }
+    }
+
+    const matchIDs1 = await getMatches(email1, password1);
+    const matchIDs2 = await getMatches(email2, password2);
+
+    console.log('!!', matchIDs1, matchIDs2);
 
     // find coincidencies
     const match = matchIDs1.filter((element) => matchIDs2.includes(element));
@@ -97,8 +87,6 @@ async function matchFinder(gamertag1, gamertag2) {
     console.log(e);
   }
 }
-
-// login('viken33@gmail.com', 'ROMPEcod#1');
 
 // A function that retrieves all active challenges
 // for each challenge, calls to matchFinder passing the gamertags
@@ -126,8 +114,8 @@ async function matchCollector() {
       console.log(`Match Id ${matchId} found for Challenge id ${challengeId}`);
       await codbets_writer.fetchWinner(
         matchId,
-        gamerta1,
-        gamertag2,
+        challenge.gamertag1,
+        challenge.gamertag2,
         challengeId
       );
     } else {
@@ -136,8 +124,6 @@ async function matchCollector() {
   }
   //
 }
-
-// matchCollector();
 
 // setInterval logic that calls matchCollector every 2 mins
 setInterval(matchCollector, 6000);
