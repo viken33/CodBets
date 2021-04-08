@@ -39,3 +39,5 @@ yarn-error.log*
 .idea
 packages/hardhat/active-venture-300323-30065e4d2546.json
 packages/hardhat/mnemonic.txt
+packages/react-app/src/active-venture-300323-30065e4d2546.json
+packages/hardhat/active-venture-300323-30065e4d2546.json
