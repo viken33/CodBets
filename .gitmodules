@@ -1,0 +1,6 @@
+[submodule "CodBetsExtAdapter"]
+	path = CodBetsExtAdapter
+	url = https://github.com/viken33/CodBets-external-CL-adapter
+[submodule "match-collector"]
+	path = match-collector
+	url = https://github.com/viken33/match-collector

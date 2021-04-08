@@ -210,22 +210,22 @@ function App(props) {
       {networkDisplay}
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/exampleui">
-            <Link
-              onClick={() => {
-                setRoute("/exampleui");
-              }}
-              to="/exampleui"
-            >
-              dApp
-            </Link>
-          </Menu.Item>
           <Menu.Item key="/">
             <Link
               onClick={() => {
                 setRoute("/");
               }}
               to="/"
+            >
+              dApp
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/contract">
+            <Link
+              onClick={() => {
+                setRoute("/contract");
+              }}
+              to="/contract"
             >
               Contract
             </Link>
@@ -250,17 +250,6 @@ function App(props) {
                 this <Contract/> component will automatically parse your ABI
                 and give you a form to interact with it locally
             */}
-
-            <Contract
-              name="CodBets"
-              signer={userProvider.getSigner()}
-              provider={userProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-          </Route>
-
-          <Route path="/exampleui">
             <ExampleUI
               address={address}
               userProvider={userProvider}
@@ -271,6 +260,16 @@ function App(props) {
               tx={tx}
               writeContracts={writeContracts}
               readContracts={readContracts}
+            />
+          </Route>
+
+          <Route path="/contract">
+            <Contract
+              name="CodBets"
+              signer={userProvider.getSigner()}
+              provider={userProvider}
+              address={address}
+              blockExplorer={blockExplorer}
             />
           </Route>
 
@@ -305,7 +304,7 @@ function App(props) {
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        Please send us feedback and comments{" "}
+        Please send us feedback <br></br> and comments{" "}
         <a href="https://github.com/viken33/CodBets" target="_blank" rel="noopener noreferrer">
           on Github
         </a>
