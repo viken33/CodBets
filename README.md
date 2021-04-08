@@ -23,7 +23,7 @@ required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://clas
 ```bash
 git clone https://github.com/viken33/CodBets/.git
 
-cd scaffold-eth
+cd CodBets
 ```
 
 ```bash
@@ -41,7 +41,6 @@ yarn start
 > in a second terminal window:
 
 ```bash
-cd scaffold-eth
 yarn chain
 
 ```
@@ -49,7 +48,6 @@ yarn chain
 > in a third terminal window:
 
 ```bash
-cd scaffold-eth
 yarn deploy
 
 ```
