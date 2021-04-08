@@ -22,7 +22,7 @@ required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://clas
 For a local demo, please clone the demo brach of this repo
 
 ```bash
-git clone -b demo https://github.com/viken33/CodBets/.git
+git clone -b demo https://github.com/viken33/CodBets.git
 
 cd CodBets
 ```
