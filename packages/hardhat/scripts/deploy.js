@@ -8,7 +8,7 @@ const R = require('ramda');
 const main = async () => {
   console.log('\n\n 📡 Deploying...\n');
 
-  const codBets = await deploy('CodBets'); // <-- add in constructor args like line 19 vvvv
+  const CodBets = await deploy('CodBets'); // <-- add in constructor args like line 19 vvvv
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
@@ -25,7 +25,8 @@ const main = async () => {
     value: ethers.utils.parseEther("0.001")
   })
   */
-
+  console.log('sleeping 5 secs');
+  sleep(5000);
   /*
   //If you want to send some ETH to a contract on deploy (make your constructor payable!)
   const yourContract = await deploy("YourContract", [], {
@@ -42,21 +43,19 @@ const main = async () => {
   */
 
   //If you want to verify your contract on tenderly.co (see setup details in the scaffold-eth README!)
-  /*
-  await tenderlyVerify(
-    {contractName: "YourContract",
-     contractAddress: yourContract.address
-  })
-  */
+
+  await tenderlyVerify({
+    contractName: 'CodBets',
+    contractAddress: CodBets.address,
+  });
 
   // If you want to verify your contract on etherscan
-  /*
-  console.log(chalk.blue('verifying on etherscan'))
-  await run("verify:verify", {
-    address: yourContract.address,
+
+  console.log(chalk.blue('verifying on etherscan'));
+  await run('verify:verify', {
+    address: CodBets.address,
     // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
-  })
-  */
+  });
 
   console.log(
     ' 💾  Artifacts (address, abi, and args) saved to: ',

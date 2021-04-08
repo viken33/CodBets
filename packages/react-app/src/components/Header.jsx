@@ -1,15 +1,16 @@
 import React from "react";
-import { PageHeader } from "antd";
+import { PageHeader, Tag } from "antd";
 
 // displays a page header
 
 export default function Header() {
   return (
-    <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank" rel="noopener noreferrer">
+    <a href="https://github.com/viken33/CodBets" target="_blank" rel="noopener noreferrer">
       <PageHeader
-        title="🏗 scaffold-eth"
-        subTitle="forkable Ethereum dev stack focused on fast product iteration"
+        title="🎮️💰️ Cod Bets!"
+        subTitle="Challenge your friends on Call of Duty MW for crypto!"
         style={{ cursor: "pointer" }}
+        tags={<Tag color="yellow">Demo</Tag>}
       />
     </a>
   );

@@ -2,22 +2,22 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/accessible-emoji */
 import React, { useState } from "react";
-import { Alert, Divider } from "antd";
+import { Alert, Divider, Tooltip, Button } from "antd";
 import { Transactor } from "../helpers";
 import FunctionForm from "./Contract/FunctionForm";
 import { parseEther, parseUnits, formatEther } from "@ethersproject/units";
 import { useContractLoader } from "../hooks";
 import DisplayVariable from "./Contract/DisplayVariable";
 
-export default function PlaceChallenge({ tx, readContracts, writeContracts, userProvider, provider, gasPrice }) {
+export default function AcceptChallenge({ tx, readContracts, writeContracts, userProvider, provider, gasPrice }) {
   const [refreshRequired, triggerRefresh] = useState(false);
 
   return (
     <div>
       <FunctionForm
-        key={"FF" + "placeChallenge"}
-        contractFunction={writeContracts.CodBets["placeChallenge"]}
-        functionInfo={writeContracts.CodBets.interface.getFunction("placeChallenge")}
+        key={"FF" + "acceptChallenge"}
+        contractFunction={writeContracts.CodBets["acceptChallenge"]}
+        functionInfo={writeContracts.CodBets.interface.getFunction("acceptChallenge")}
         provider={provider}
         gasPrice={gasPrice}
         triggerRefresh={triggerRefresh}
@@ -25,11 +25,8 @@ export default function PlaceChallenge({ tx, readContracts, writeContracts, user
       />
       {/* <Divider /> */}
       <Alert
-        message="Create a Challenge!"
-        description="Gamertags are as they appear on the game without the hashtag.
-        (if is shown as 'player#123456' , just input 'player'). 
-        Include your opponents Address.
-        Bet amout must be equal to transaction value"
+        message="Accept a Challenge!"
+        description="Input the challenge Id, transaction value must be equal to Bet Amount"
         type="info"
         showIcon
       />

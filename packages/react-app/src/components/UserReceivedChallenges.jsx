@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/accessible-emoji */
 import React, { useState, useEffect, useCallback } from "react";
-import { Table } from "antd";
+import { Table, Space, Spin } from "antd";
 import { BigNumber } from "@ethersproject/bignumber";
 
 const UserReceivedChallenges = ({ tx, readContracts, address, writeContracts, userProvider, provider, gasPrice }) => {
@@ -10,22 +10,26 @@ const UserReceivedChallenges = ({ tx, readContracts, address, writeContracts, us
   const [dataSource, setdataSource] = useState([]);
 
   const readcon = useCallback(async () => {
-    const challenges = await readContracts.CodBets.viewReceivedChallenges(address);
+    try {
+      const challenges = await readContracts.CodBets.viewReceivedChallenges(address);
 
-    challenges.forEach((el, key) => {
-      readContracts.CodBets.challenges(el).then(e => {
-        dataSource[key] = {
-          key: `${key + 1}`,
-          challengeid: BigNumber.from(el).toString(),
-          usertag1: e.gamertag1,
-          amount: BigNumber.from(e.amount).toString(),
-          accepted: e.accepted ? "Yes" : "No",
-          settled: e.settled ? "Yes" : "No",
-        };
+      challenges.forEach((el, key) => {
+        readContracts.CodBets.challenges(el).then(e => {
+          dataSource[key] = {
+            key: `${key + 1}`,
+            challengeid: BigNumber.from(el).toString(),
+            usertag1: e.gamertag1,
+            amount: BigNumber.from(e.amount).toString(),
+            accepted: e.accepted ? "Yes" : "Not Yet",
+            settled: e.winner,
+          };
+        });
       });
-    });
 
-    setdataSource([...dataSource]);
+      setdataSource([...dataSource].reverse());
+    } catch (e) {
+      console.log(e);
+    }
   }, [setdataSource, triggerRefresh]);
 
   useEffect(() => {
@@ -39,7 +43,7 @@ const UserReceivedChallenges = ({ tx, readContracts, address, writeContracts, us
       key: "challengeid",
     },
     {
-      title: "Usertag1",
+      title: "Opponent",
       dataIndex: "usertag1",
       key: "usertag1",
     },
@@ -54,16 +58,19 @@ const UserReceivedChallenges = ({ tx, readContracts, address, writeContracts, us
       key: "accepted",
     },
     {
-      title: "Settled",
+      title: "Winner",
       dataIndex: "settled",
       key: "settled",
     },
   ];
 
-  return (
+  return !dataSource.length ? (
+    <Spin size="large" />
+  ) : (
     <div>
       <Table dataSource={dataSource} columns={columns} />
     </div>
   );
 };
+
 export default UserReceivedChallenges;

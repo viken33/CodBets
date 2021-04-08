@@ -21,7 +21,7 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = 'localhost';
+const defaultNetwork = 'kovan';
 
 function mnemonic() {
   try {
@@ -47,7 +47,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: 'https://kovan.infura.io/v3/6b8cd8a91efb4747a5f28676a49802c4',
+        url: 'https://kovan.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad',
         accounts: {
           mnemonic: mnemonic(),
         },
@@ -56,10 +56,9 @@ module.exports = {
 
     localhost: {
       url: 'http://localhost:8545',
-      /*
-        notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
-        (you can put in a mnemonic here to set the deployer locally)
-      */
+      accounts: {
+        mnemonic: mnemonic(),
+      },
     },
     rinkeby: {
       url: 'https://rinkeby.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad', //<---- YOUR INFURA ID! (or it won't work)
@@ -68,7 +67,7 @@ module.exports = {
       },
     },
     kovan: {
-      url: 'https://kovan.infura.io/v3/6b8cd8a91efb4747a5f28676a49802c4', //<---- YOUR INFURA ID! (or it won't work)
+      url: 'https://kovan.infura.io/v3/5b55e30382a746259ae44bb1f0eded23', //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
         mnemonic: mnemonic(),
       },
@@ -131,11 +130,15 @@ module.exports = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: 'PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8',
+    apiKey: '8X5QU4HBCCS7B9CRU13S6E7DSKTVMENZS6',
+  },
+  tenderly: {
+    project: '',
+    username: '',
   },
 };
 
-const DEBUG = false;
+const DEBUG = true;
 
 function debug(text) {
   if (DEBUG) {

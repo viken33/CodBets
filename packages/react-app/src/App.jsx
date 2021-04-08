@@ -1,7 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
-import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import {
+  JsonRpcProvider,
+  StaticJsonRpcProvider,
+  InfuraProvider,
+  getDefaultProvider,
+  Web3Provider,
+} from "@ethersproject/providers";
 import "./App.css";
 import { Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
@@ -44,7 +50,7 @@ import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants"
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS["localhost"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS["kovan"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = false;
@@ -55,8 +61,9 @@ if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 // const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
 //
 // attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
-const scaffoldEthProvider = new JsonRpcProvider("https://rpc.scaffoldeth.io:48544");
-const mainnetInfura = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
+// const scaffoldEthProvider = new StaticJsonRpcProvider("https://rpc.scaffoldeth.io:48544");
+const mainnetInfura = new InfuraProvider("homestead", "5b55e30382a746259ae44bb1f0eded23");
+// const mainnetInfura = new getDefaultProvider("kovan");
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
 // 🏠 Your local provider is usually pointed at your local blockchain
@@ -64,13 +71,15 @@ const localProviderUrl = targetNetwork.rpcUrl;
 // as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
 const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
 if (DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
-const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
+// const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
+const localProvider = new InfuraProvider("kovan", "5b55e30382a746259ae44bb1f0eded23");
 
 // 🔭 block explorer URL
 const blockExplorer = targetNetwork.blockExplorer;
 
 function App(props) {
-  const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
+  // const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
+  const mainnetProvider = mainnetInfura;
   if (DEBUG) console.log("🌎 mainnetProvider", mainnetProvider);
 
   const [injectedProvider, setInjectedProvider] = useState();
@@ -115,30 +124,13 @@ function App(props) {
   const writeContracts = useContractLoader(userProvider);
   if (DEBUG) console.log("🔐 writeContracts", writeContracts);
 
-  // EXTERNAL CONTRACT EXAMPLE:
-  //
-  // If you want to bring in the mainnet DAI contract it would look like:
-  const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI);
-  console.log("🌍 DAI contract on mainnet:", mainnetDAIContract);
-  //
-  // Then read your DAI balance like:
-  const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", [
-    "0x34aA3F359A9D614239015126635CE7732c18fDF3",
-  ]);
-  console.log("🥇 myMainnetDAIBalance:", myMainnetDAIBalance);
-
   // keep track of a variable from the contract in the local React state:
-  const challengeCount = useContractReader(readContracts, "CodBets", "challengeCount");
-  console.log("🤗 challengeCount:", challengeCount);
+  // const challengeCount = useContractReader(readContracts, "CodBets", "challengeCount");
+  // console.log("🤗 challengeCount:", challengeCount);
 
   //📟 Listen for broadcast events
-  const setPurposeEvents = useEventListener(readContracts, "CodBets", "NewChallenge", localProvider, 1);
-  console.log("📟 SetPurpose events:", setPurposeEvents);
-
-  /*
-  const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
-  console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
-  */
+  // const NewChallenges = useEventListener(readContracts, "CodBets", "NewChallenge", localProvider, 1);
+  // console.log("📟 New Challenges:", NewChallenges);
 
   let networkDisplay = "";
   if (localChainId && selectedChainId && localChainId != selectedChainId) {
@@ -218,26 +210,6 @@ function App(props) {
       {networkDisplay}
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link
-              onClick={() => {
-                setRoute("/");
-              }}
-              to="/"
-            >
-              CodBets
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/hints">
-            <Link
-              onClick={() => {
-                setRoute("/hints");
-              }}
-              to="/hints"
-            >
-              Hints
-            </Link>
-          </Menu.Item>
           <Menu.Item key="/exampleui">
             <Link
               onClick={() => {
@@ -245,20 +217,21 @@ function App(props) {
               }}
               to="/exampleui"
             >
-              ExampleUI
+              dApp
             </Link>
           </Menu.Item>
-          <Menu.Item key="/mainnetdai">
+          <Menu.Item key="/">
             <Link
               onClick={() => {
-                setRoute("/mainnetdai");
+                setRoute("/");
               }}
-              to="/mainnetdai"
+              to="/"
             >
-              Mainnet DAI
+              Contract
             </Link>
           </Menu.Item>
-          <Menu.Item key="/subgraph">
+
+          {/* <Menu.Item key="/subgraph">
             <Link
               onClick={() => {
                 setRoute("/subgraph");
@@ -267,7 +240,7 @@ function App(props) {
             >
               Subgraph
             </Link>
-          </Menu.Item>
+          </Menu.Item> */}
         </Menu>
 
         <Switch>
@@ -285,36 +258,8 @@ function App(props) {
               address={address}
               blockExplorer={blockExplorer}
             />
-
-            {/* uncomment for a second contract:
-            <Contract
-              name="SecondContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
-
-            {/* Uncomment to display and interact with an external contract (DAI on mainnet):
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
           </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
-          </Route>
+
           <Route path="/exampleui">
             <ExampleUI
               address={address}
@@ -326,27 +271,16 @@ function App(props) {
               tx={tx}
               writeContracts={writeContracts}
               readContracts={readContracts}
-              // purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
             />
           </Route>
-          <Route path="/mainnetdai">
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer={"https://etherscan.io/"}
-            />
-          </Route>
+
           <Route path="/subgraph">
-            <Subgraph
+            {/* <Subgraph
               subgraphUri={props.subgraphUri}
               tx={tx}
               writeContracts={writeContracts}
               mainnetProvider={mainnetProvider}
-            />
+            /> */}
           </Route>
         </Switch>
       </BrowserRouter>
@@ -371,42 +305,15 @@ function App(props) {
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={8}>
-            <Ramp price={price} address={address} networks={NETWORKS} />
-          </Col>
-
-          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-            <GasGauge gasPrice={gasPrice} />
-          </Col>
-          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-            <Button
-              onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-              }}
-              size="large"
-              shape="round"
-            >
-              <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                💬
-              </span>
-              Support
-            </Button>
-          </Col>
-        </Row>
-
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={24}>
-            {
-              /*  if the local provider has a signer, let's show the faucet:  */
-              faucetAvailable ? (
-                <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
-              ) : (
-                ""
-              )
-            }
-          </Col>
-        </Row>
+        Please send us feedback and comments{" "}
+        <a href="https://github.com/viken33/CodBets" target="_blank" rel="noopener noreferrer">
+          on Github
+        </a>
+        <br></br>
+        Built with{" "}
+        <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank" rel="noopener noreferrer">
+          Scaffold-Eth
+        </a>
       </div>
     </div>
   );

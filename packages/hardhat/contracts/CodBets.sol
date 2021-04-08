@@ -4,18 +4,17 @@ pragma solidity >=0.6.0 <0.9.0;
 /**
  * 
  * @author @viken33 and @famole
- * @description This contract is used to place and handle Bets for the CodBets Dapp
+ * @title This contract is used to place and handle Bets (or Challenges) for the CodBets Dapp
  * It allows players to place bets against each other which are settled in a trustless fashion
  * A player can place a bet sending value to the contract, including his Call of Duty gamertag,
- * his opponent gamertag and address.
+ * his opponent gamertag and eth address.
  * CodBets searches for the next match they play together, and settles the bet automatically
  * based on a Chainlink Oracle API Request.
- 
- * @requires
- * We use Open Zeppelin SafeMath and Ownable
- * and Chainlink Client
+ *
+ * @dev We use Open Zeppelin SafeMath and Ownable and Chainlink Client
  */
- 
+
+
 import "@openzeppelin/contracts/access/Ownable.sol"; 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
@@ -33,19 +32,20 @@ contract CodBets is Ownable, ChainlinkClient {
         uint256 amount;
         bool accepted;
         bool settled;
+        string winner;
     }
     
     address private oracle;
     bytes32 private jobId;
     uint256 private fee;
-    uint256 challengeCount;                                  // generate challengeIds by counting
+    uint256 public challengeCount;                                  // generate challengeIds by counting
     mapping(uint256 => Challenge) public challenges;         // challengeId => Challenge Struct
     mapping(address => uint256[]) public userChallenges;     // maps player => placed challengeIds 
     mapping(bytes32 => uint256) public matches;              // requests => challengeIds
     mapping(address => uint256[]) public receivedChallenges; // maps player => received challengeIds
     
     /** 
-    * @description challenge related Events
+    * @dev challenge related Events
     */
     event NewChallenge(
         address indexed _player1,
@@ -60,7 +60,7 @@ contract CodBets is Ownable, ChainlinkClient {
     event ChallengeSettled(uint256 indexed _challengeId, string _winner);
     
     /** 
-    * @constructor defines Chainlink params
+    * @dev constructor defines Chainlink params
     */
     constructor() public {
         setPublicChainlinkToken();
@@ -71,7 +71,7 @@ contract CodBets is Ownable, ChainlinkClient {
     }
 
     /** 
-    * @description Sets the challenge Struct linking addresses to gamertags and bet amount with msg.value
+    * @notice Sets the challenge Struct linking addresses to gamertags and bet amount with msg.value
     * Returns a challengeId and maps it to player address
     * @param _gamertag1 refers to players in-game id
     * @param _gamertag2 refers to opponent in-game id
@@ -91,7 +91,8 @@ contract CodBets is Ownable, ChainlinkClient {
             gamertag2 : _gamertag2,
             amount : _amount,
             accepted : false,
-            settled : false });
+            settled : false,
+            winner : "_" });
             
             challengeCount = challengeCount.add(1); // chalengeId based on count
             challenges[challengeCount] = chall;
@@ -102,8 +103,8 @@ contract CodBets is Ownable, ChainlinkClient {
     }
     
     /** 
-    * @description Removes a challenge, its must be created by the player
-    * @param _challengeid
+    * @notice Removes a challenge, its must be created by the player
+    * @param _challengeId challenge Id to be removed
     */
 
     function removeChallenge(uint256 _challengeId) public {
@@ -122,9 +123,9 @@ contract CodBets is Ownable, ChainlinkClient {
     }
     
     /** 
-    * @description Accepts a challenge, only the challenged player can accept it
+    * @notice Accepts a challenge, only the challenged player can accept it
     * it must pay the bet amount along in tx value
-    * @param _challengeid
+    * @param _challengeId challenge to be accepted
     */
 
     function acceptChallenge(uint256 _challengeId) public payable {
@@ -137,7 +138,7 @@ contract CodBets is Ownable, ChainlinkClient {
     }
 
     /** 
-    * @description view function to retrieve placed challenges of player
+    * @notice view function to retrieve placed challenges of player
     * @param _addr address of player
     */
 
@@ -146,7 +147,7 @@ contract CodBets is Ownable, ChainlinkClient {
     }
 
     /** 
-    * @description view function to retrieve incoming challenges of player
+    * @notice view function to retrieve incoming challenges of player
     * @param _addr address of player
     */
 
@@ -155,15 +156,14 @@ contract CodBets is Ownable, ChainlinkClient {
     }
 
     /** 
-    * @description Once a match between players of a bet takes place, CodBets calls this function
+    * @notice Once a match between players of a bet takes place, CodBets calls this function
     * to fetch the winner based on a matchid. A helper function _fetchWinner gets called which
     * triggers a Chainlink Request to a node with an external adapter, that fullfils the request
     * with the gamertag of the match winner, and pays the bet.
     * @param _matchid match id, internal id on Call of Duty API
     * @param _gamertag1 refers to players in-game id
     * @param _gamertag2 refers to opponent in-game id
-    * @param _challengeId
-    * @param requestId is used to track request fullfilment and mapping with matchId
+    * @param _challengeId challenge to be settled
     */
     
     function fetchWinner(string memory _matchid, string memory _gamertag1, string memory _gamertag2, 
@@ -184,7 +184,7 @@ contract CodBets is Ownable, ChainlinkClient {
     }
     
     /** 
-    * @description fulfills Chainlink Request and settles bet/challenge
+    * @notice fulfills Chainlink Request and settles bet/challenge
     */
      
     function fulfill(bytes32 _requestId, bytes32 _winner) public recordChainlinkFulfillment(_requestId)
@@ -196,6 +196,7 @@ contract CodBets is Ownable, ChainlinkClient {
         //settles the challenge
          Challenge storage chall = challenges[matches[_requestId]];
         chall.settled = true;
+        chall.winner = winner;
         
         // pays winner or splits pot in case of draw
         
@@ -214,7 +215,7 @@ contract CodBets is Ownable, ChainlinkClient {
     }
     
     /** 
-    * @description helper function to change oracle and jobId
+    * @notice helper function to change oracle and jobId
     * @param _oracle Oracle Address
     * @param _jobId JobId on oracle
     */

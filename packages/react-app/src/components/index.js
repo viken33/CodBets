@@ -19,3 +19,5 @@ export { default as ThemeSwitch } from "./ThemeSwitch";
 export { default as PlaceChallenge } from "./PlaceChallenge";
 export { default as UserChallenges } from "./UserChallenges";
 export { default as UserReceivedChallenges } from "./UserReceivedChallenges";
+export { default as ActLogin } from "./ActLogin";
+export { default as AcceptChallenge } from "./AcceptChallenge";
