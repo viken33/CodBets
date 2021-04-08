@@ -1,4 +1,4 @@
-# 🏗 CodBets
+# 🎮️💰️ CodBets
 
 ### CodBets is a Dapp that allows Call of Duty MW players to place bets against each other using crypto.
  We use a contract to handle the bets and a Chainlink Oracle to settle them automatically.
