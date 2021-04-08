@@ -3,11 +3,11 @@
 ### CodBets is a Dapp that allows Call of Duty MW players to place bets against each other using crypto.
  We use a contract to handle the bets and a Chainlink Oracle to settle them automatically.
  
-> Dapp Basic Flow :
-> 1) Player 1 logs with Activision Credentials, and places a Challenge in the contract providing both gamertags (own and opponent), the opponent eth address, and a bet amount (value sent with transaction must be equal to bet amount). 
-> 2) Player 2 logs with Activision Credentials, and accepts the Challenge (a transaction with value matching the bet amount)
-> 3) CodBets polls the Activision API using [a backend service](https://github.com/viken33/match-collector), and when a match between the players takes place, it fetches the winner through a Chainlink Request, and settles the bet paying the pot to the winner. In the unlikely event of a draw the pot gets split even.
-> Alternative Flow: If Player 2 never accepts the challenge, Player 1 is able to remove it in order to get back the value placed in the contract.
+- Dapp Basic Flow :
+ 1) Player 1 logs with Activision Credentials, and places a Challenge in the contract providing both gamertags (own and opponent), the opponent eth address, and a bet amount (value sent with transaction must be equal to bet amount). 
+ 2) Player 2 logs with Activision Credentials, and accepts the Challenge (a transaction with value matching the bet amount)
+ 3) CodBets polls the Activision API using [a backend service](https://github.com/viken33/match-collector), and when a match between the players takes place, it fetches the winner through a Chainlink Request, and settles the bet paying the pot to the winner. In the unlikely event of a draw the pot gets split even.
+ Alternative Flow: If Player 2 never accepts the challenge, Player 1 is able to remove it in order to get back the value placed in the contract.
 
 
 ---
