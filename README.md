@@ -14,6 +14,7 @@
 ### Live Demo
 
 We have a [Live Demo on Kovan Testnet](https://ipfs.io/ipfs/QmSNDUpJauzSb9VGs2d2Kzy7De3Ac1mNZ4gSjK4nHWiS4c) 
+Try it out and please let us know your comments!
 
 
 ### Local Demo
