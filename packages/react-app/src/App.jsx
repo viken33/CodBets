@@ -254,7 +254,7 @@ function App(props) {
             <Contract
               name="CodBets"
               signer={userProvider.getSigner()}
-              provider={localProvider}
+              provider={userProvider}
               address={address}
               blockExplorer={blockExplorer}
             />
@@ -265,7 +265,7 @@ function App(props) {
               address={address}
               userProvider={userProvider}
               mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
+              localProvider={userProvider}
               yourLocalBalance={yourLocalBalance}
               price={price}
               tx={tx}
