@@ -56,12 +56,14 @@ async function matchFinder(gamertag1, gamertag2) {
       );
 
       // fetch last matches 20 matches timestamp now
-      const millisecondTimestamp = new Date().getUTCMilliseconds();
+      const timestamp = parseInt(Date.now());
       const lastTwentyMatches = await CallOfDutyAPI.MatchHistory(
         { username: username, platform: platform },
         'mp',
-        'mw'
-        // millisecondTimestamp
+        'mw',
+        timestamp,
+        0,
+        20
       );
 
       // loop through matches and save matchIds
